@@ -4,14 +4,14 @@ public class DiningHall extends AbstractModelObject {
 
 	private String hallName = "";
 	private String hallLocation = "";
-	private String hallAdmin = "";
+	private int hallAdmin = -1;
 	private String hallType = "";
 	
 	public DiningHall(){
 		
 	}
 	
-	public DiningHall(String name, String type, String location, String admin){
+	public DiningHall(String name, String type, String location, int admin){
 		this.hallName = name;
 		this.hallType = type;
 		this.hallLocation = location;
@@ -48,12 +48,12 @@ public class DiningHall extends AbstractModelObject {
 		firePropertyChange("type", oldType, this.hallType);
 	}
 	
-	public String getAdmin() {
+	public int getAdmin() {
 		return this.hallAdmin;
 	}
 	
-	public void setAdmin(String admin){
-		String oldAdmin = this.hallAdmin;
+	public void setAdmin(int admin){
+		int oldAdmin = this.hallAdmin;
 		this.hallAdmin = admin;
 		firePropertyChange("admin", oldAdmin, this.hallAdmin);
 	}
