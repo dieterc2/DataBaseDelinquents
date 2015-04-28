@@ -1,15 +1,22 @@
 package dininghallcatalog;
 
+import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.StatusLineManager;
+import org.eclipse.jface.action.ToolBarManager;
+import org.eclipse.jface.window.ApplicationWindow;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
@@ -60,8 +67,8 @@ public class Catalog {
 	 */
 	public void run() throws ClassNotFoundException {
 		Class.forName("org.sqlite.JDBC");
-		Connection conn = null;
 		try {
+			Connection conn = null;
 			conn = this.getConnection();
 			System.out.println("Successfully connected to database!");
 		} catch (SQLException e){
@@ -131,10 +138,11 @@ public class Catalog {
 		list.setBounds(0, 21, 114, 391);
 		try {
 			while (rs.next()){
-				list.add(rs.getString("dh_name"));
+				list.add(rs.getString(0));
 			}
+			
 		} catch (SQLException e) {
-			System.out.println("Shit broke.");
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
