@@ -168,7 +168,7 @@ public class Catalog {
 		detailsComposite.setBounds(124, 71, 655, 355);
 		
 		ScrolledComposite menuComposite = new ScrolledComposite(detailsComposite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-		menuComposite.setBounds(0, 106, 655, 249);
+		menuComposite.setBounds(0, 106, 415, 249);
 		menuComposite.setExpandHorizontal(true);
 		menuComposite.setExpandVertical(true);
 		
@@ -181,10 +181,6 @@ public class Catalog {
 		TableColumn tblclmnItemDescription = new TableColumn(table, SWT.NONE);
 		tblclmnItemDescription.setWidth(176);
 		tblclmnItemDescription.setText("Item Description");
-		
-		TableColumn tblclmnNutritionalInformation = new TableColumn(table, SWT.NONE);
-		tblclmnNutritionalInformation.setWidth(218);
-		tblclmnNutritionalInformation.setText("Nutritional Information");
 		
 		TableColumn tblclmnPrice = new TableColumn(table, SWT.NONE);
 		tblclmnPrice.setWidth(111);
@@ -200,17 +196,13 @@ public class Catalog {
 		permItemDesclbl.setBounds(127, 91, 87, 15);
 		permItemDesclbl.setText("Item Description");
 		
-		Label permNutritionlbl = new Label(detailsComposite, SWT.NONE);
-		permNutritionlbl.setBounds(304, 91, 123, 15);
-		permNutritionlbl.setText("Nutritional Information");
-		
 		Label permPricelbl = new Label(detailsComposite, SWT.NONE);
-		permPricelbl.setBounds(523, 91, 55, 15);
+		permPricelbl.setBounds(305, 91, 55, 15);
 		permPricelbl.setText("Price");
 		
-		Label lblHallName = new Label(detailsComposite, SWT.NONE);
+		final Label lblHallName = new Label(detailsComposite, SWT.NONE);
 		lblHallName.setFont(SWTResourceManager.getFont("Century Schoolbook", 13, SWT.BOLD));
-		lblHallName.setBounds(10, 10, 256, 27);
+		lblHallName.setBounds(10, 10, 233, 27);
 		
 		Label permCuisinelbl = new Label(detailsComposite, SWT.NONE);
 		permCuisinelbl.setFont(SWTResourceManager.getFont("Century Schoolbook", 10, SWT.BOLD));
@@ -232,21 +224,21 @@ public class Catalog {
 		
 		Label permHourslbl = new Label(detailsComposite, SWT.NONE);
 		permHourslbl.setFont(SWTResourceManager.getFont("Century Schoolbook", 10, SWT.BOLD));
-		permHourslbl.setBounds(252, 43, 46, 15);
+		permHourslbl.setBounds(408, 14, 46, 15);
 		permHourslbl.setText("Hours:");
 		
 		Label permLoclbl = new Label(detailsComposite, SWT.NONE);
 		permLoclbl.setFont(SWTResourceManager.getFont("Century Schoolbook", 10, SWT.BOLD));
-		permLoclbl.setBounds(252, 64, 68, 15);
+		permLoclbl.setBounds(176, 43, 68, 15);
 		permLoclbl.setText("Location:");
 		
-		final Label lblHours = new Label(detailsComposite, SWT.NONE);
+		final Label lblHours = new Label(detailsComposite, SWT.WRAP);
 		lblHours.setFont(SWTResourceManager.getFont("Century Schoolbook", 9, SWT.ITALIC));
-		lblHours.setBounds(304, 43, 324, 15);
+		lblHours.setBounds(421, 35, 220, 202);
 		
 		final Label lblLoc = new Label(detailsComposite, SWT.NONE);
 		lblLoc.setFont(SWTResourceManager.getFont("Century Schoolbook", 9, SWT.NORMAL));
-		lblLoc.setBounds(325, 64, 253, 15);
+		lblLoc.setBounds(250, 43, 161, 15);
 
 		Button btnStartASearch = new Button(searchComposite, SWT.NONE);
 		btnStartASearch.setBounds(270, 0, 75, 25);
@@ -260,12 +252,16 @@ public class Catalog {
 				PreparedStatement p = conn.prepareStatement("Select * From dining_hall, operational_hours Where dh_name = \'" + dhst + "\' AND dh_name = dh_name1 Order By dh_name");
 				p.clearParameters();
 			    rs = p.executeQuery();
+			    //ArrayList hour = new ArrayList(String);
+			    String hour = "";
+			    lblHallName.setText(dhst);
 			    while(rs.next()){
 			    	lblType.setText(rs.getString("dh_type"));
 			    	lblCuisine.setText(rs.getString("cuisine"));
 			    	lblLoc.setText(rs.getString("location"));
-			    	lblHours.setText("Hours: " + rs.getString("time_open") + "-" + rs.getString("time_close") + " On " + rs.getString("wk_day"));
+			    	hour += rs.getString("time_open") + "-" + rs.getString("time_close") + " On " + rs.getString("wk_day") + "\n";
 			    }
+			    lblHours.setText(hour);
 				}catch(Exception e){
 				}
 			}
