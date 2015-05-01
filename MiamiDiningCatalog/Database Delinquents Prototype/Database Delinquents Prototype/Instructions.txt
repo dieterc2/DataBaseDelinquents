@@ -1,0 +1,20 @@
+This is made the same as in Lab 4. 
+
+You first link your directory for the directory containing the files Project.java, Project.class, Project.db and sqlite-jdbc-3.7.2.jar.
+You run the Project.java using javac Project.java
+You then type java -classpath ".;sqlite-jdbc-3.7.2.jar" Project
+
+Then the program should start asking you what you want to query.
+Typing help will list your options in the beginning.
+Other options currently include to type in include dh, hours, buffet and admin.
+
+note admin is not listed in help because it would not be listed in a usual system like this.
+the username is 'big cheese' and password is 'password'
+if you follow this route you will be allowed to enter information for a new dining hall.
+
+if you chose anything else it will query the database and show you what you want.
+
+Overall
+Just follow instructions and continue to the end.
+
+To exit just close command line or type ctrl c
