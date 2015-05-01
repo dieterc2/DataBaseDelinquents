@@ -25,6 +25,9 @@ import org.eclipse.swt.widgets.Button;
 import dininghalls.model.DiningHall;
 import dininghalls.model.DiningHallGroup;
 import org.eclipse.jface.viewers.ListViewer;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.widgets.Combo;
 
 public class Catalog {
 
@@ -185,9 +188,29 @@ public class Catalog {
 		lblAlreadyKnowWhat.setBounds(0, 4, 264, 16);
 		lblAlreadyKnowWhat.setText("Already know what you're looking for?");
 		
+		Label lblIWantTo = new Label(searchComposite, SWT.NONE);
+		lblIWantTo.setFont(SWTResourceManager.getFont("Century Schoolbook", 9, SWT.NORMAL));
+		lblIWantTo.setBounds(10, 34, 106, 15);
+		lblIWantTo.setText("I want to search by:");
+		
 		Button btnStartASearch = new Button(searchComposite, SWT.NONE);
-		btnStartASearch.setBounds(270, 0, 75, 25);
-		btnStartASearch.setText("Start a Search");
+		btnStartASearch.setEnabled(false);
+		btnStartASearch.setBounds(570, 26, 75, 25);
+		btnStartASearch.setText("Start Search");
+		
+		ToolBar filtersMenu = new ToolBar(searchComposite, SWT.FLAT | SWT.RIGHT);
+		filtersMenu.setBounds(122, 26, 180, 23);
+		
+		ToolItem tltmDropdownItem = new ToolItem(filtersMenu, SWT.DROP_DOWN);
+		tltmDropdownItem.setText("DropDown Item");
+		
+		Label lblFor = new Label(searchComposite, SWT.NONE);
+		lblFor.setBounds(309, 34, 26, 15);
+		lblFor.setText("for:");
+		
+		Combo combo = new Combo(searchComposite, SWT.NONE);
+		combo.setToolTipText("Select or enter the values you are looking for.");
+		combo.setBounds(341, 26, 208, 23);
 		
 		Composite detailsComposite = new Composite(shlDatabaseDel, SWT.BORDER);
 		detailsComposite.setBounds(124, 71, 655, 355);
