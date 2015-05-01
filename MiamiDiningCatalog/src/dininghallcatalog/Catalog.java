@@ -1,13 +1,9 @@
 package dininghallcatalog;
 
-import org.eclipse.jface.action.MenuManager;
-import org.eclipse.jface.action.StatusLineManager;
-import org.eclipse.jface.action.ToolBarManager;
-import org.eclipse.jface.window.ApplicationWindow;
+
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
@@ -16,14 +12,19 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.ArrayList;
 
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.wb.swt.SWTResourceManager;
-import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Button;
+
+import dininghalls.model.DiningHall;
+import dininghalls.model.DiningHallGroup;
+import org.eclipse.jface.viewers.ListViewer;
 
 public class Catalog {
 
@@ -34,9 +35,11 @@ public class Catalog {
 	private final String password = "root";
 	
 	/** Name of the database. */
-	static final String DB_URL = "jdbc:sqlite:C:/Users/Jon/sqlite/MUDining.db";
+	static final String DB_URL = "jdbc:sqlite:C:/Users/Jon/sqlite/Project.db";
 	
-	public static ResultSet rs = null;
+	private ResultSet resultSet;
+	private DiningHallGroup hall_group;
+	private ListViewer listViewer;
 	
 	/**
 	 *  Setup a new connection to the database.
@@ -51,10 +54,13 @@ public class Catalog {
 
 	public void executeUpdate(Connection conn, String command) throws SQLException {
 		PreparedStatement query = null;
-		rs = null;
+		resultSet = null;
 		try {
 			query = conn.prepareStatement(command);
-			rs = query.executeQuery();
+			resultSet = query.executeQuery();
+			while (resultSet.next()){
+				System.out.println(resultSet.getString("dh_name"));
+			}
 		} finally {
 			if (query != null){
 				query.close();
@@ -91,8 +97,6 @@ public class Catalog {
 	public static void main(String[] args) throws ClassNotFoundException, SQLException {
 		Catalog app = new Catalog();
 		app.run();
-		String testQuery = "SELECT * FROM dining_hall";
-		app.executeUpdate(app.getConnection(), testQuery);
 		try {
 			Catalog window = new Catalog();
 			window.open();
@@ -106,6 +110,7 @@ public class Catalog {
 	 */
 	public void open() {
 		Display display = Display.getDefault();
+		setDefaultValues();
 		createContents();
 		shlDatabaseDel.open();
 		shlDatabaseDel.layout();
@@ -114,8 +119,26 @@ public class Catalog {
 				display.sleep();
 			}
 		}
+		display.dispose();
 	}
-
+	
+	/**
+	 *  Create the data to be displayed in the window.
+	 */
+	private void setDefaultValues(){
+		hall_group = new DiningHallGroup();
+		String populateHalls = "SELECT * FROM dining_hall";
+		try {
+			executeUpdate(getConnection(), populateHalls);
+			while (resultSet.next()){
+				hall_group.addHall(new DiningHall(resultSet.getString("dh_name"), resultSet.getString("dh_type"), 
+					resultSet.getString("location"), resultSet.getInt("adm_id1")));
+			}
+		}catch (SQLException e) {
+			System.out.println("Error trying to populate dining halls.");
+			e.printStackTrace();
+		}
+	}
 	/**
 	 * Create contents of the window.
 	 */
@@ -134,17 +157,25 @@ public class Catalog {
 		lblDiningHalls.setFont(SWTResourceManager.getFont("Century Schoolbook", 12, SWT.BOLD));
 		lblDiningHalls.setText("Dining Halls");
 		
-		List list = new List(diningHallComposite, SWT.BORDER);
-		list.setBounds(0, 21, 114, 391);
-		try {
-			while (rs.next()){
-				list.add(rs.getString(0));
-			}
-			
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		final org.eclipse.swt.widgets.List list = new org.eclipse.swt.widgets.List(diningHallComposite, SWT.SINGLE | SWT.BORDER);
+		list.setItems(new String[] {});
+		list.setFont(SWTResourceManager.getFont("Century Schoolbook", 10, SWT.NORMAL));
+		list.setBounds(5, 25, 105, 385);
+		GridData gridData = new GridData();
+		gridData.horizontalSpan = 1;
+		list.setLayoutData(gridData);
+		
+		listViewer = new ListViewer(diningHallComposite, SWT.NONE);
+		org.eclipse.swt.widgets.List list_1 = listViewer.getList();
+		list_1.setBounds(10, 33, 94, 369);
+		List<DiningHall> hallList = new ArrayList<DiningHall>(hall_group.getHalls());
+		String[] hallNames = new String[hallList.size()];
+		for (int i = 0; i < hallNames.length; i++){
+			hallNames[i] = hallList.get(i).getName();
+			list.add(hallNames[i]);
 		}
+		
+		
 		
 		Composite searchComposite = new Composite(shlDatabaseDel, SWT.NONE);
 		searchComposite.setBounds(124, 10, 655, 61);
@@ -241,6 +272,6 @@ public class Catalog {
 		Label lblArmstrongStudentCenter = new Label(detailsComposite, SWT.NONE);
 		lblArmstrongStudentCenter.setFont(SWTResourceManager.getFont("Century Schoolbook", 9, SWT.NORMAL));
 		lblArmstrongStudentCenter.setBounds(325, 64, 253, 15);
-
+		//initDataBindindings();
 	}
 }

@@ -35,7 +35,7 @@ public class DiningHallGroup extends AbstractModelObject {
 		firePropertyChange("dining hall", null, halls);
 	}
 	
-	public List getHalls() {
+	public List<DiningHall> getHalls() {
 		return halls;
 	}
 	
