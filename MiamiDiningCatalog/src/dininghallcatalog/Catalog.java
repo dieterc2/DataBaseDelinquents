@@ -162,31 +162,17 @@ public class Catalog {
 		lblAlreadyKnowWhat.setBounds(0, 4, 264, 16);
 		lblAlreadyKnowWhat.setText("Already know what you're looking for?");
 		
-
-		
 		Composite detailsComposite = new Composite(shlDatabaseDel, SWT.BORDER);
 		detailsComposite.setBounds(124, 71, 655, 355);
 		
-		ScrolledComposite menuComposite = new ScrolledComposite(detailsComposite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-		menuComposite.setBounds(0, 106, 415, 249);
-		menuComposite.setExpandHorizontal(true);
-		menuComposite.setExpandVertical(true);
+		final List listItemName = new List(detailsComposite, SWT.V_SCROLL);
+		listItemName.setBounds(0, 109, 125, 232);
 		
-		table = new Table(menuComposite, SWT.FULL_SELECTION);
+		final List listItemDescription = new List(detailsComposite, SWT.V_SCROLL);
+		listItemDescription.setBounds(125, 109, 125, 232);
 		
-		TableColumn tblclmnItemName = new TableColumn(table, SWT.NONE);
-		tblclmnItemName.setWidth(125);
-		tblclmnItemName.setText("Item Name");
-		
-		TableColumn tblclmnItemDescription = new TableColumn(table, SWT.NONE);
-		tblclmnItemDescription.setWidth(176);
-		tblclmnItemDescription.setText("Item Description");
-		
-		TableColumn tblclmnPrice = new TableColumn(table, SWT.NONE);
-		tblclmnPrice.setWidth(111);
-		tblclmnPrice.setText("Price");
-		menuComposite.setContent(table);
-		menuComposite.setMinSize(table.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		final List listPrice = new List(detailsComposite, SWT.V_SCROLL);
+		listPrice.setBounds(250, 109, 125, 232);
 		
 		Label permItemlbl = new Label(detailsComposite, SWT.NONE);
 		permItemlbl.setBounds(2, 91, 68, 15);
@@ -249,17 +235,34 @@ public class Catalog {
 				final String dhst = list.getItem(list.getSelectionIndex());
 				try{
 				conn = DriverManager.getConnection(DB_URL);
-				PreparedStatement p = conn.prepareStatement("Select * From dining_hall, operational_hours Where dh_name = \'" + dhst + "\' AND dh_name = dh_name1 Order By dh_name");
+				PreparedStatement p = conn.prepareStatement("Select * From dining_hall, operational_hours, buffet, a_la_carte_menu Where dh_name = \'" + dhst + "\' AND dh_name = dh_name1 AND (dh_name = dh_name2 OR dh_name = dh_name3) Order By dh_name");
 				p.clearParameters();
 			    rs = p.executeQuery();
-			    //ArrayList hour = new ArrayList(String);
 			    String hour = "";
 			    lblHallName.setText(dhst);
+			    listItemName.removeAll();
+			    listItemDescription.removeAll();
+			    listPrice.removeAll();
 			    while(rs.next()){
 			    	lblType.setText(rs.getString("dh_type"));
 			    	lblCuisine.setText(rs.getString("cuisine"));
 			    	lblLoc.setText(rs.getString("location"));
-			    	hour += rs.getString("time_open") + "-" + rs.getString("time_close") + " On " + rs.getString("wk_day") + "\n";
+			    	if(!hour.contains(rs.getString("time_open") + "-" + rs.getString("time_close") + " On " + rs.getString("wk_day") + "\n"))
+			    		hour += rs.getString("time_open") + "-" + rs.getString("time_close") + " On " + rs.getString("wk_day") + "\n";
+			    	if("ala carte".equals(rs.getString("dh_type"))){
+			    		System.out.println(listItemName.indexOf(rs.getString("food_name")));
+			    		if(listItemName.indexOf(rs.getString("food_name")) != -1)
+			    			continue;
+			    		listItemName.add(rs.getString("food_name"));
+			    		listItemDescription.add(rs.getString("food_desc"));
+			    		listPrice.add("$" + rs.getInt("price1"));
+			    	}else{
+			    		System.out.println(listItemName.indexOf(rs.getString("meal_time")));
+			    		if(listItemName.indexOf(rs.getString("meal_time")) != -1)
+			    			continue;
+			    		listItemName.add(rs.getString("meal_time"));
+			    		listPrice.add("$" + rs.getString("price2"));
+			    	}
 			    }
 			    lblHours.setText(hour);
 				}catch(Exception e){
