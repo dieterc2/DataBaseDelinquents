@@ -9,6 +9,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 import java.sql.Connection;
@@ -34,7 +35,8 @@ public class Catalog {
 	private final String password = "root";
 	
 	/** Name of the database. */
-	static final String DB_URL = "jdbc:sqlite:C:/Users/Jon/sqlite/MUDining.db";
+	static final String DB_URL = "jdbc:sqlite:M:/Workspace/DataBaseDelinquents/MiamiDiningCatalog/Project.db";
+	private Connection conn = null;
 	
 	public static ResultSet rs = null;
 	
@@ -44,7 +46,7 @@ public class Catalog {
 	 * @throws SQLException
 	 */
 	public Connection getConnection() throws SQLException {
-		Connection conn = null;
+
 		conn = DriverManager.getConnection(DB_URL, userName, password);
 		return conn;
 	}
@@ -69,7 +71,7 @@ public class Catalog {
 		Class.forName("org.sqlite.JDBC");
 		try {
 			Connection conn = null;
-			conn = this.getConnection();
+			this.conn = this.getConnection();
 			System.out.println("Successfully connected to database!");
 		} catch (SQLException e){
 			System.out.println("Error: Could not connect to the database.");
@@ -120,10 +122,12 @@ public class Catalog {
 	 * Create contents of the window.
 	 */
 	protected void createContents() {
+		
+		
 		shlDatabaseDel = new Shell();
 		shlDatabaseDel.setSize(805, 475);
 		shlDatabaseDel.setText("Database Delinquents: Miami Dining Catalog");
-		
+	
 		Composite diningHallComposite = new Composite(shlDatabaseDel, SWT.BORDER);
 		diningHallComposite.setBounds(2, 10, 118, 416);
 		
@@ -134,11 +138,15 @@ public class Catalog {
 		lblDiningHalls.setFont(SWTResourceManager.getFont("Century Schoolbook", 12, SWT.BOLD));
 		lblDiningHalls.setText("Dining Halls");
 		
-		List list = new List(diningHallComposite, SWT.BORDER);
+		final List list = new List(diningHallComposite, SWT.BORDER);
 		list.setBounds(0, 21, 114, 391);
 		try {
+			conn = DriverManager.getConnection(DB_URL);
+			PreparedStatement p = conn.prepareStatement("Select * From dining_hall Order By dh_name");
+			p.clearParameters();
+		    rs = p.executeQuery();
 			while (rs.next()){
-				list.add(rs.getString(0));
+				list.add(rs.getString("dh_name"));
 			}
 			
 		} catch (SQLException e) {
@@ -154,9 +162,7 @@ public class Catalog {
 		lblAlreadyKnowWhat.setBounds(0, 4, 264, 16);
 		lblAlreadyKnowWhat.setText("Already know what you're looking for?");
 		
-		Button btnStartASearch = new Button(searchComposite, SWT.NONE);
-		btnStartASearch.setBounds(270, 0, 75, 25);
-		btnStartASearch.setText("Start a Search");
+
 		
 		Composite detailsComposite = new Composite(shlDatabaseDel, SWT.BORDER);
 		detailsComposite.setBounds(124, 71, 655, 355);
@@ -216,12 +222,12 @@ public class Catalog {
 		permTypelbl.setBounds(13, 64, 139, 15);
 		permTypelbl.setText("Type of Resturant:");
 		
-		Label lblCuisine = new Label(detailsComposite, SWT.NONE);
-		lblCuisine.setFont(SWTResourceManager.getFont("Century Schoolbook", 9, SWT.BOLD | SWT.ITALIC));
+		final Label lblCuisine = new Label(detailsComposite, SWT.NONE);
+		lblCuisine.setFont(SWTResourceManager.getFont("Century Schoolbook", 9, SWT.ITALIC));
 		lblCuisine.setBounds(74, 44, 96, 15);
 		
-		Label lblType = new Label(detailsComposite, SWT.NONE);
-		lblType.setFont(SWTResourceManager.getFont("Century Schoolbook", 9, SWT.BOLD | SWT.ITALIC));
+		final Label lblType = new Label(detailsComposite, SWT.NONE);
+		lblType.setFont(SWTResourceManager.getFont("Century Schoolbook", 9, SWT.ITALIC));
 		lblType.setBounds(158, 64, 80, 15);
 		
 		Label permHourslbl = new Label(detailsComposite, SWT.NONE);
@@ -234,13 +240,36 @@ public class Catalog {
 		permLoclbl.setBounds(252, 64, 68, 15);
 		permLoclbl.setText("Location:");
 		
-		Label lblHours = new Label(detailsComposite, SWT.NONE);
+		final Label lblHours = new Label(detailsComposite, SWT.NONE);
 		lblHours.setFont(SWTResourceManager.getFont("Century Schoolbook", 9, SWT.ITALIC));
 		lblHours.setBounds(304, 43, 324, 15);
 		
-		Label lblArmstrongStudentCenter = new Label(detailsComposite, SWT.NONE);
-		lblArmstrongStudentCenter.setFont(SWTResourceManager.getFont("Century Schoolbook", 9, SWT.NORMAL));
-		lblArmstrongStudentCenter.setBounds(325, 64, 253, 15);
+		final Label lblLoc = new Label(detailsComposite, SWT.NONE);
+		lblLoc.setFont(SWTResourceManager.getFont("Century Schoolbook", 9, SWT.NORMAL));
+		lblLoc.setBounds(325, 64, 253, 15);
 
+		Button btnStartASearch = new Button(searchComposite, SWT.NONE);
+		btnStartASearch.setBounds(270, 0, 75, 25);
+		btnStartASearch.setText("Start a Search");
+		btnStartASearch.addListener(SWT.Selection, new Listener (){
+			@Override
+			public void handleEvent(org.eclipse.swt.widgets.Event arg0) {
+				final String dhst = list.getItem(list.getSelectionIndex());
+				try{
+				conn = DriverManager.getConnection(DB_URL);
+				PreparedStatement p = conn.prepareStatement("Select * From dining_hall, operational_hours Where dh_name = \'" + dhst + "\' AND dh_name = dh_name1 Order By dh_name");
+				p.clearParameters();
+			    rs = p.executeQuery();
+			    while(rs.next()){
+			    	lblType.setText(rs.getString("dh_type"));
+			    	lblCuisine.setText(rs.getString("cuisine"));
+			    	lblLoc.setText(rs.getString("location"));
+			    	lblHours.setText("Hours: " + rs.getString("time_open") + "-" + rs.getString("time_close") + " On " + rs.getString("wk_day"));
+			    }
+				}catch(Exception e){
+				}
+			}
+		});
+		
 	}
 }
