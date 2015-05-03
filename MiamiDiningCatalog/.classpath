@@ -2,9 +2,9 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
-	<classpathentry kind="lib" path="C:/Users/Jon/Desktop/CSE/EclipseJava/eclipse/plugins/org.eclipse.jface_3.10.2.v20141021-1035.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Jon/Desktop/CSE/EclipseJava/eclipse/plugins/org.eclipse.swt.win32.win32.x86_64_3.103.2.v20150203-1351.jar"/>
 	<classpathentry kind="lib" path="swing2swt.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Jon/sqlite/SQLite JDBC Test/sqlite-jdbc-3.7.2.jar"/>
+	<classpathentry kind="lib" path="org.eclipse.jface_3.10.2.v20141021-1035.jar"/>
+	<classpathentry kind="lib" path="org.eclipse.swt.win32.win32.x86_64_3.103.2.v20150203-1351.jar"/>
+	<classpathentry kind="lib" path="sqlite-jdbc-3.7.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
