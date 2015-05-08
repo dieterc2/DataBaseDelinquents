@@ -34,7 +34,7 @@ public class Catalog {
 	private final String password = "root";
 	
 	/** Name and location of the database. */
-	static final String DB_URL = "jdbc:sqlite:C:/Users/Jon/sqlite/Project.db";
+	static final String DB_URL = "jdbc:sqlite:M:/Project.db";
 	/** Connection for the database. */
 	private Connection conn = null;
 	/** Result Set for DB queries. */
@@ -56,7 +56,7 @@ public class Catalog {
 	private final String CUISINE = "Cuisine Type";
 	private final String RESTAURANT = "Restaurant Type";
 	private final String FOOD = "Food Item";
-	
+	private final String HILO = "Average Price";
 	/**
 	 *  Setup a new connection to the database.
 	 *
@@ -335,6 +335,7 @@ public class Catalog {
 			filterMenu.add("Food Item");
 			filterMenu.add("Cuisine Type");
 			filterMenu.add("Restaurant Type");
+			filterMenu.add(HILO);
 			/**
 			 * Handles user filter selection and updates the search text box with appropriate default text.
 			 */
@@ -388,43 +389,64 @@ public class Catalog {
 				shlSearchResults = new Shell();
 				shlSearchResults.setSize(700,400);
 				shlSearchResults.setText("Search Results");
+				// Get the user specified range
+				String maxVal = searchText.getText();
+				// Generate the search result page..
+				// Search results dipslay label.. lets the user know what results they are seeing.
+				final Label searchExecuted = new Label(shlSearchResults, SWT.NONE);
+				searchExecuted.setBounds(100, 5, 500, 15);
+				
+				// List of items
+				final List itemMatchNames = new List(shlSearchResults, SWT.BORDER | SWT.V_SCROLL);
+				itemMatchNames.setBounds(100, 50, 125, 232);
+				// List of item descriptions
+				final List itemMatchDesc = new List(shlSearchResults, SWT.BORDER | SWT.V_SCROLL);
+				itemMatchDesc.setBounds(225, 50, 125, 232);
+				// List of item prices
+				final List itemMatchPrices = new List(shlSearchResults, SWT.BORDER | SWT.V_SCROLL);
+				itemMatchPrices.setBounds(350, 50, 125, 232);
+				// List of locations item is sold at
+				final List itemLocations = new List(shlSearchResults, SWT.BORDER | SWT.V_SCROLL);
+				itemLocations.setBounds(475, 50, 125, 232);
+				// This label does not change, it represents the menus item column
+				Label itemNameLbl = new Label(shlSearchResults, SWT.NONE);
+				itemNameLbl.setBounds(125, 30, 68, 15);
+				itemNameLbl.setText("Item Name");
+				// This label does not change, it represents the menus item description column
+				Label itemDescLbl = new Label(shlSearchResults, SWT.NONE);
+				itemDescLbl.setBounds(250, 30, 87, 15);
+				itemDescLbl.setText("Item Description");
+				//This label does not change, it represents the menus item price column
+				Label itemPriceLbl = new Label(shlSearchResults, SWT.NONE);
+				itemPriceLbl.setBounds(375, 30, 55, 15);
+				itemPriceLbl.setText("Price");
+				Label itemLocLbl = new Label(shlSearchResults, SWT.NONE);
+				itemLocLbl.setBounds(490, 30, 55, 15);
+				itemLocLbl.setText("Locations");
+				// Open the new window
+				shlSearchResults.open();
+				if(filterMenu.getText().equals(HILO)){
+					String cName = searchText.getText();
+					searchExecuted.setText("Average price of all items: ");
+					try{
+						conn = DriverManager.getConnection(DB_URL);
+						listItemName.removeAll();
+					    listItemDescription.removeAll();
+					    listPrice.removeAll();
+						PreparedStatement p = conn.prepareStatement("SELECT AVG(price1) FROM a_la_carte_menu");
+						p.clearParameters();
+						ResultSet rf = null;
+						rf = p.executeQuery();
+						while(rf.next()){
+							searchExecuted.setText("Average price of all items: " + rf.getInt("AVG(price1)"));
+						}
+						
+					} catch (Exception e){
+						
+					}
+				}
 				if (filterMenu.getText().equals(BUDGET)){
-					// Get the user specified range
-					String maxVal = searchText.getText();
-					// Generate the search result page..
-					// Search results dipslay label.. lets the user know what results they are seeing.
-					final Label searchExecuted = new Label(shlSearchResults, SWT.NONE);
-					searchExecuted.setBounds(100, 5, 500, 15);
 					searchExecuted.setText("All items for $" + maxVal + " or less. Click on an item to see where it is served.");
-					// List of items
-					final List itemMatchNames = new List(shlSearchResults, SWT.BORDER | SWT.V_SCROLL);
-					itemMatchNames.setBounds(100, 50, 125, 232);
-					// List of item descriptions
-					final List itemMatchDesc = new List(shlSearchResults, SWT.BORDER | SWT.V_SCROLL);
-					itemMatchDesc.setBounds(225, 50, 125, 232);
-					// List of item prices
-					final List itemMatchPrices = new List(shlSearchResults, SWT.BORDER | SWT.V_SCROLL);
-					itemMatchPrices.setBounds(350, 50, 125, 232);
-					// List of locations item is sold at
-					final List itemLocations = new List(shlSearchResults, SWT.BORDER | SWT.V_SCROLL);
-					itemLocations.setBounds(475, 50, 125, 232);
-					// This label does not change, it represents the menus item column
-					Label itemNameLbl = new Label(shlSearchResults, SWT.NONE);
-					itemNameLbl.setBounds(125, 30, 68, 15);
-					itemNameLbl.setText("Item Name");
-					// This label does not change, it represents the menus item description column
-					Label itemDescLbl = new Label(shlSearchResults, SWT.NONE);
-					itemDescLbl.setBounds(250, 30, 87, 15);
-					itemDescLbl.setText("Item Description");
-					//This label does not change, it represents the menus item price column
-					Label itemPriceLbl = new Label(shlSearchResults, SWT.NONE);
-					itemPriceLbl.setBounds(375, 30, 55, 15);
-					itemPriceLbl.setText("Price");
-					Label itemLocLbl = new Label(shlSearchResults, SWT.NONE);
-					itemLocLbl.setBounds(490, 30, 55, 15);
-					itemLocLbl.setText("Locations");
-					// Open the new window
-					shlSearchResults.open();
 					try {
 						conn = DriverManager.getConnection(DB_URL);
 						// Retrieve all items under the user specified price
@@ -468,34 +490,95 @@ public class Catalog {
 	//***************** Search function does not work yet. *******************************
 				if (filterMenu.getText().equals(FOOD)){
 					String itemName = searchText.getText();
+					searchExecuted.setText("All items that match your search of: " + itemName + ". Click to see locations.");
+					
 					try {
 						conn = DriverManager.getConnection(DB_URL);
 						listItemName.removeAll();
 					    listItemDescription.removeAll();
 					    listPrice.removeAll();
-						PreparedStatement p = conn.prepareStatement("SELECT * FROM a_la_carte_menu WHERE food_name % \'" + itemName + "\'%");
+						PreparedStatement p = conn.prepareStatement("SELECT * FROM a_la_carte_menu WHERE food_name LIKE  \'%" + itemName + "%\'");
 						p.clearParameters();
 						ResultSet rf = null;
 						rf = p.executeQuery();
 					    while (rf.next()) {
-					    	if (listItemName.indexOf(rf.getString("food_name")) != -1)
+					    	if (itemMatchNames.indexOf(rf.getString("food_name")) != -1)
 								continue;
-							listItemName.add(rf.getString("food_name"));
-							listItemDescription.add(rf
+					    	itemMatchNames.add(rf.getString("food_name"));
+					    	itemMatchDesc.add(rf
 									.getString("food_desc"));
-							listPrice.add("$" + rf.getInt("price1"));
+					    	itemMatchPrices.add("$" + rf.getInt("price1"));
 					    }
+					    itemMatchNames.addListener(SWT.Selection, new Listener(){
+
+							@Override
+							public void handleEvent(Event arg0) {
+								// String to use with the SQL query. Only dininghalls with this item should be returned.
+								final String helper = itemMatchNames.getItem(itemMatchNames.getSelectionIndex());
+								try {
+		//***************************** Query not 100% correct. ************************
+									PreparedStatement b = conn.prepareStatement("SELECT * FROM dining_hall, a_la_carte_menu WHERE food_name ="
+											+ " \'" + helper + "\'");
+									b.clearParameters();
+									ResultSet rc = null;
+									rc = b.executeQuery();
+									while (rc.next()) {
+										itemLocations.add(rc.getString("dh_name"));
+									}
+								} catch (SQLException e) {
+									e.printStackTrace();
+								}
+								
+							}
+					    	
+					    });
 				}catch(SQLException e1){
 				}
 				}
 	//***************** Search function needs implemented *******************************
 				if (filterMenu.getText().equals(CUISINE)){
-					String searchInput = searchText.getText();
+					String cName = searchText.getText();
+					searchExecuted.setText("All dining halls that match your desired cuisine.");
+					try{
+						conn = DriverManager.getConnection(DB_URL);
+						listItemName.removeAll();
+					    listItemDescription.removeAll();
+					    listPrice.removeAll();
+						PreparedStatement p = conn.prepareStatement("SELECT * FROM dining_hall WHERE cuisine LIKE  \'%" + cName + "%\'");
+						p.clearParameters();
+						ResultSet rf = null;
+						rf = p.executeQuery();
+						while (rf.next()) {
+					    	if (itemLocations.indexOf(rf.getString("dh_name")) != -1)
+								continue;
+					    	itemLocations.add(rf.getString("dh_name"));
+					    }
+					} catch (Exception e){
+						
+					}
 				
 				}
    //***************** Search function needs implemented *******************************
 				if (filterMenu.getText().equals(RESTAURANT)){
-					
+					String typey = searchText.getText();
+					searchExecuted.setText("All dining halls that match your desired restaurant type.");
+					try{
+						conn = DriverManager.getConnection(DB_URL);
+						listItemName.removeAll();
+					    listItemDescription.removeAll();
+					    listPrice.removeAll();
+						PreparedStatement p = conn.prepareStatement("SELECT * FROM dining_hall WHERE dh_type LIKE  \'%" + typey + "%\'");
+						p.clearParameters();
+						ResultSet rf = null;
+						rf = p.executeQuery();
+						while (rf.next()) {
+					    	if (itemLocations.indexOf(rf.getString("dh_name")) != -1)
+								continue;
+					    	itemLocations.add(rf.getString("dh_name"));
+					    }
+					} catch (Exception e){
+						
+					}
 				}
 			}
 		});
