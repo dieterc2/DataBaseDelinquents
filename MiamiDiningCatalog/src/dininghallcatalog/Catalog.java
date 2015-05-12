@@ -438,7 +438,7 @@ public class Catalog {
 						ResultSet rf = null;
 						rf = p.executeQuery();
 						while(rf.next()){
-							searchExecuted.setText("Average price of all items: " + rf.getInt("AVG(price1)"));
+							searchExecuted.setText("Average price of all items: " + rf.getDouble("AVG(price1)"));
 						}
 						
 					} catch (Exception e){
@@ -452,6 +452,7 @@ public class Catalog {
 						// Retrieve all items under the user specified price
 						PreparedStatement p = conn.prepareStatement("SELECT * FROM a_la_carte_menu WHERE price1 < \'" + maxVal + "\' ORDER BY price1");
 						p.clearParameters();
+						
 						ResultSet rf = null;
 						rf = p.executeQuery();
 						// Add the items to the list
@@ -466,11 +467,12 @@ public class Catalog {
 					    itemMatchNames.addListener(SWT.Selection, new Listener() {
 							@Override
 							public void handleEvent(org.eclipse.swt.widgets.Event arg0) {
+								itemLocations.removeAll();
 								// String to use with the SQL query. Only dininghalls with this item should be returned.
 								final String helper = itemMatchNames.getItem(itemMatchNames.getSelectionIndex());
 								try {
 		//***************************** Query not 100% correct. ************************
-									PreparedStatement b = conn.prepareStatement("SELECT * FROM dining_hall, a_la_carte_menu WHERE food_name ="
+									PreparedStatement b = conn.prepareStatement("SELECT * FROM dining_hall, a_la_carte_menu WHERE dh_name=dh_name2 AND food_name ="
 											+ " \'" + helper + "\'");
 									b.clearParameters();
 									ResultSet rc = null;
